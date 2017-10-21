@@ -9,12 +9,15 @@ import { ProductsApiService } from '../../services/api/products-api.service';
 })
 export class ProductListingPageComponent implements OnInit {
 
+  productsSubscription;
   products;
 
   constructor( private productsApi: ProductsApiService ) { }
 
   ngOnInit() {
-    this.products = this.productsApi.getProducts();
+    this.productsSubscription = this.productsApi.getProducts().subscribe((products) => {
+      this.products = products;
+    });
   }
 
 }
