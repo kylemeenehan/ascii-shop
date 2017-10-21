@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 
 import { ServicesModule } from './services/services.module';
 import { ComponentsModule } from './components/components.module';
+import { MaterialModule } from './material/material.module';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { ComponentsModule } from './components/components.module';
   imports: [
     BrowserModule,
     ServicesModule,
-    ComponentsModule
+    ComponentsModule,
+    MaterialModule
   ],
   providers: [],
   bootstrap: [AppComponent]
