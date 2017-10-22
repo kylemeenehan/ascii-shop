@@ -20,6 +20,7 @@ export class ProductListingPageComponent implements OnInit {
   productCache: any[] = [];
   products: any[];
   productSubject: Subject<any[]> = new Subject();
+  productUpdateObservable;
   productCount: number = 20;
   productLoadInterval: number = 20;
   loadingMore: boolean = false;
@@ -30,15 +31,15 @@ export class ProductListingPageComponent implements OnInit {
 
   ngOnInit() {
 
-    Observable.create((observer: Observer<any>) => {
-      this.productSubject.subscribe((products) => {
-        this.products = products;
-      })
-    });
+   this.productSubject.subscribe((products) => {
+     this.products = products;
+   }) 
 
     this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((products) => {
-      this.productCache.push(products);
-      this.products = products;
+      products.map((product) => {
+        this.productCache.push(product);
+      });
+      this.productSubject.next(products);
     }));
 
     window.addEventListener('scroll', (event) => {
@@ -55,6 +56,9 @@ export class ProductListingPageComponent implements OnInit {
       
       this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((products) => {
         this.productCache.push(products);
+        products.map((product) => {
+          this.productCache.push(product);
+        });
         this.productSubject.next(this.productCache);
         this.loadingMore = false;
       }));
