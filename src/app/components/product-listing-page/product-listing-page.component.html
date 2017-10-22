@@ -19,9 +19,11 @@
       </mat-card>
 
     </div>
-    <div class="cell large-4 medium-6">
-      <mat-card *ngIf="(i + 1) % 20 == 0">
-        <mat-card-content> Advert </mat-card-content>
+    <div class="cell large-4 medium-6" *ngIf="(i + 1) % 20 == 0">
+      <mat-card >
+        <mat-card-content>
+          <img [src]=" " alt="">
+        </mat-card-content>
       </mat-card>
     </div>
   </ng-container>

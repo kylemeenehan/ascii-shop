@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/Rx';
 
 import { ProductsApiService } from '../../services/api/products-api.service';
+import { AdvertsApiService } from '../../services/api/adverts-api.service';
 
 import Product from '../../../types/product';
 
@@ -30,7 +31,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   noMoreProducts: boolean = false;
   sortQuery: string = 'id';
 
-  constructor(private productsApi: ProductsApiService) {
+  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService) {
     
   }
 
@@ -79,6 +80,10 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     this.productCache = [];
     this.products = [];
     this.productCount = 0;
+  }
+
+  getAdImage(){
+    return this.advertsApi.getAdvert();
   }
 
   ngOnDestroy(){

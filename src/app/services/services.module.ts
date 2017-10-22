@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
 import { ProductsApiService } from './api/products-api.service';
-import { InfiniteScrollService } from './infinite-scroll/infinite-scroll.service';
+import { AdvertsApiService } from './api/adverts-api.service';
 
 @NgModule({
   imports: [
@@ -12,7 +12,7 @@ import { InfiniteScrollService } from './infinite-scroll/infinite-scroll.service
   ],
   providers: [
     ProductsApiService,
-    InfiniteScrollService
+    AdvertsApiService
   ]
 })
 export class ServicesModule { }
