@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
@@ -13,7 +13,7 @@ import { ProductsApiService } from '../../services/api/products-api.service';
   templateUrl: './product-listing-page.component.html',
   styleUrls: ['./product-listing-page.component.scss']
 })
-export class ProductListingPageComponent implements OnInit {
+export class ProductListingPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('infiniteScrollContainer') infiteScrollContainer: ElementRef;
   productsSubscriptions: Subscription[] = [];
@@ -24,6 +24,7 @@ export class ProductListingPageComponent implements OnInit {
   productCount: number = 20;
   productLoadInterval: number = 20;
   loadingMore: boolean = false;
+  initialLoad: boolean = true;
 
   constructor(private productsApi: ProductsApiService) {
     
@@ -32,6 +33,7 @@ export class ProductListingPageComponent implements OnInit {
   ngOnInit() {
 
    this.productSubject.subscribe((products) => {
+     console.log(products);
      this.products = products;
    }) 
 
@@ -55,7 +57,6 @@ export class ProductListingPageComponent implements OnInit {
       this.loadingMore = true;
       
       this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((products) => {
-        this.productCache.push(products);
         products.map((product) => {
           this.productCache.push(product);
         });
@@ -65,6 +66,12 @@ export class ProductListingPageComponent implements OnInit {
 
       this.productCount += this.productLoadInterval;
     }
+  }
+
+  ngOnDestroy(){
+    this.productsSubscriptions.map((subscription) => {
+      subscription.unsubscribe();
+    })
   }
 
 }

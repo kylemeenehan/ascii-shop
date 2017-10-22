@@ -5,4 +5,5 @@
       <mat-card-subtitle>{{ product.price / 100 | currency : USD : true }}</mat-card-subtitle>
     </mat-card>
   </div>
+  <div class="cell" *ngIf="initialLoad || loading">Loading ...</div>
 </div>
