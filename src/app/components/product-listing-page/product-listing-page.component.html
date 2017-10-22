@@ -1,11 +1,28 @@
 <div #infiniteScrollContainer class="grid-x grid-margin-x grid-margin-y">
-  <div class="cell large-4 medium-6" *ngFor="let product of products" >
-    <mat-card >
-      <mat-card-content [style.fontSize.px] = product.size >{{ product.face }}</mat-card-content>
+  <div class="cell large-4 medium-6" *ngFor="let product of products">
+    <mat-card>
+      <mat-card-content [style.fontSize.px]=p roduct.size>{{ product.face }}</mat-card-content>
       <mat-card-title>{{ product.price / 100 | currency : USD : true }}</mat-card-title>
       <mat-card-subtitle>{{ product.date | date }}</mat-card-subtitle>
     </mat-card>
   </div>
-  <div class="cell" *ngIf="(initialLoad || loading) && !noMoreProducts">Loading ...</div>
-  <div class="cell" *ngIf="noMoreProducts">There are no more products<div>
+  <div class="cell text-center" *ngIf="(initialLoad || loading) && !noMoreProducts">
+    <div class="sk-circle">
+      <div class="sk-circle1 sk-child"></div>
+      <div class="sk-circle2 sk-child"></div>
+      <div class="sk-circle3 sk-child"></div>
+      <div class="sk-circle4 sk-child"></div>
+      <div class="sk-circle5 sk-child"></div>
+      <div class="sk-circle6 sk-child"></div>
+      <div class="sk-circle7 sk-child"></div>
+      <div class="sk-circle8 sk-child"></div>
+      <div class="sk-circle9 sk-child"></div>
+      <div class="sk-circle10 sk-child"></div>
+      <div class="sk-circle11 sk-child"></div>
+      <div class="sk-circle12 sk-child"></div>
+    </div>
+  </div>
+  <div>
+    <div class="cell" *ngIf="noMoreProducts">There are no more products</div>
+  </div>
 </div>
