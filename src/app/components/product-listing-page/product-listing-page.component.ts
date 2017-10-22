@@ -8,6 +8,8 @@ import 'rxjs/Rx';
 
 import { ProductsApiService } from '../../services/api/products-api.service';
 
+import Product from '../../../types/product';
+
 @Component({
   selector: 'app-product-listing-page',
   templateUrl: './product-listing-page.component.html',
@@ -17,9 +19,9 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('infiniteScrollContainer') infiteScrollContainer: ElementRef;
   productsSubscriptions: Subscription[] = [];
-  productCache: any[] = [];
-  products: any[];
-  productSubject: Subject<any[]> = new Subject();
+  productCache: Product[] = [];
+  products: Product[];
+  productSubject: Subject<Product[]> = new Subject();
   productUpdateObservable;
   productCount: number = 20;
   productLoadInterval: number = 20;
@@ -32,7 +34,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-   this.productSubject.subscribe((products) => {
+   this.productSubject.subscribe((products: Product[]) => {
      console.log(products);
      this.products = products;
    }) 

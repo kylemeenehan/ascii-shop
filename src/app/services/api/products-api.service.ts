@@ -5,6 +5,8 @@ import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import 'rxjs/Rx';
 
+import Product from '../../../types/product';
+
 @Injectable()
 export class ProductsApiService {
 
@@ -16,7 +18,7 @@ export class ProductsApiService {
         let productStringArray = data.split('\n');
         // remove empty element from the end of the array
         productStringArray.pop();
-        let products = [];
+        let products: Product[] = [];
         let end = false;
         if (productStringArray.length > 0) {
           products = productStringArray.map((line) => {
