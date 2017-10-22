@@ -23,11 +23,12 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   products: Product[];
   productSubject: Subject<Product[]> = new Subject();
   productUpdateObservable;
-  productCount: number = 20;
+  productCount: number = 0;
   productLoadInterval: number = 20;
   loadingMore: boolean = false;
   initialLoad: boolean = true;
   noMoreProducts: boolean = false;
+  sortQuery: string = 'id';
 
   constructor(private productsApi: ProductsApiService) {
     
@@ -40,12 +41,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
      this.products = products;
    }) 
 
-    this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((data) => {
-      data.products.map((product) => {
-        this.productCache.push(product);
-      });
-      this.productSubject.next(data.products);
-    }));
+   this.loadMoreProducts(); 
 
     window.addEventListener('scroll', (event) => {
       if (window.scrollY >= this.infiteScrollContainer.nativeElement.offsetHeight - window.innerHeight) {
@@ -59,7 +55,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
       this.loadingMore = true;
       
       console.log('load more');
-      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount).subscribe((data) => {
+      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
         data.products.map((product) => {
           this.productCache.push(product);
         });
@@ -70,6 +66,19 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
       this.productCount += this.productLoadInterval;
     }
+  }
+
+  sortBy(query: string) {
+    this.sortQuery = query;
+    this.reset();
+    this.loadMoreProducts();
+    
+  }
+
+  reset(){
+    this.productCache = [];
+    this.products = [];
+    this.productCount = 0;
   }
 
   ngOnDestroy(){

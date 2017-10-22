@@ -1,9 +1,17 @@
+<div class="grix-x grid-margin-x grid-margin-y">
+  <div class="cell"><h1>Sort By:</h1></div>
+  <div class="cell"><button mat-raised-button (click)="sortBy('price')">Price</button></div>
+  <div class="cell"><button mat-raised-button (click)="sortBy('size')">Size</button></div>
+  <div class="cell"><button mat-raised-button (click)="sortBy('id')">ID</button></div>
+</div>
+
 <div #infiniteScrollContainer class="grid-x grid-margin-x grid-margin-y">
   <div class="cell large-4 medium-6" *ngFor="let product of products">
     <mat-card>
-      <mat-card-content [style.fontSize.px]=p roduct.size>{{ product.face }}</mat-card-content>
+      <mat-card-content [style.fontSize.px]="product.size">{{ product.face }}</mat-card-content>
       <mat-card-title>{{ product.price / 100 | currency : USD : true }}</mat-card-title>
       <mat-card-subtitle>{{ product.date | date }}</mat-card-subtitle>
+      <mat-card-subtitle>{{ product.size }}px</mat-card-subtitle>
     </mat-card>
   </div>
   <div class="cell text-center" *ngIf="(initialLoad || loading) && !noMoreProducts">
