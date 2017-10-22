@@ -27,6 +27,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   productLoadInterval: number = 20;
   loadingMore: boolean = false;
   initialLoad: boolean = true;
+  noMoreProducts: boolean = false;
 
   constructor(private productsApi: ProductsApiService) {
     
@@ -48,22 +49,23 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
     window.addEventListener('scroll', (event) => {
       if (window.scrollY >= this.infiteScrollContainer.nativeElement.offsetHeight - window.innerHeight) {
-        console.log('load more');
         this.loadMoreProducts();
       }
     })
   }
 
   loadMoreProducts() {
-    if (!this.loadingMore) {
+    if (!(this.loadingMore || this.noMoreProducts)) {
       this.loadingMore = true;
       
+      console.log('load more');
       this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount).subscribe((data) => {
         data.products.map((product) => {
           this.productCache.push(product);
         });
         this.productSubject.next(this.productCache);
         this.loadingMore = false;
+        this.noMoreProducts = data.end;
       }));
 
       this.productCount += this.productLoadInterval;

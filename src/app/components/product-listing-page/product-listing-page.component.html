@@ -6,5 +6,6 @@
       <mat-card-subtitle>{{ product.date | date }}</mat-card-subtitle>
     </mat-card>
   </div>
-  <div class="cell" *ngIf="initialLoad || loading">Loading ...</div>
+  <div class="cell" *ngIf="(initialLoad || loading) && !noMoreProducts">Loading ...</div>
+  <div class="cell" *ngIf="noMoreProducts">There are no more products<div>
 </div>
