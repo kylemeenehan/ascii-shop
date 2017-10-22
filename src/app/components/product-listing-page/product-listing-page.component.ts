@@ -37,11 +37,11 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
      this.products = products;
    }) 
 
-    this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((products) => {
-      products.map((product) => {
+    this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((data) => {
+      data.products.map((product) => {
         this.productCache.push(product);
       });
-      this.productSubject.next(products);
+      this.productSubject.next(data.products);
     }));
 
     window.addEventListener('scroll', (event) => {
@@ -56,8 +56,8 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     if (!this.loadingMore) {
       this.loadingMore = true;
       
-      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount).subscribe((products) => {
-        products.map((product) => {
+      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount).subscribe((data) => {
+        data.products.map((product) => {
           this.productCache.push(product);
         });
         this.productSubject.next(this.productCache);
