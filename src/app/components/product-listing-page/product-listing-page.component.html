@@ -1,7 +1,8 @@
-<div class="grid-x grid-padding-x grid-padding-y">
-  <div class="cell large-3 medium-4 small-6" *ngFor="let product of products" >
+<div class="grid-x grid-margin-x grid-margin-y">
+  <div class="cell large-4 medium-6" *ngFor="let product of products" >
     <mat-card >
       <mat-card-content [style.fontSize.px] = product.size >{{ product.face }}</mat-card-content>
+      <mat-card-subtitle>{{ product.price / 100 | currency : USD : true }}</mat-card-subtitle>
     </mat-card>
   </div>
 </div>
