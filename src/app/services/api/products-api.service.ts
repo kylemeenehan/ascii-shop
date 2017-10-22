@@ -10,9 +10,9 @@ export class ProductsApiService {
 
   constructor( private http: HttpClient ) { }
 
-  getProducts(){
+  getProducts( numberOfProducts: number, skip: number = 0 ){
     const productsObservable = Observable.create((observer: Observer<any>) => {
-      this.http.get('http://localhost:8000/api/products', { responseType: 'text' }).subscribe((data) => {
+      this.http.get(`http://localhost:8000/api/products?limit=${numberOfProducts}&skip=${skip}`, { responseType: 'text' }).subscribe((data) => {
         let productStringArray = data.split('\n');
         // remove empty element from the end of the array
         productStringArray.pop();

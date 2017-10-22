@@ -5,4 +5,8 @@ export class InfiniteScrollService {
 
   constructor() { }
 
+  init(scrollContainer: HTMLElement) {
+
+  }
+
 }
