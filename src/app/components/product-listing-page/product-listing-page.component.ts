@@ -56,7 +56,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     if (!this.loadingMore) {
       this.loadingMore = true;
       
-      this.productsSubscriptions.push(this.productsApi.getProducts(this.productCount).subscribe((products) => {
+      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount).subscribe((products) => {
         products.map((product) => {
           this.productCache.push(product);
         });
