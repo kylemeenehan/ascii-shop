@@ -31,6 +31,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   initialLoad: boolean = true;
   noMoreProducts: boolean = false;
   sortQuery: string = 'id';
+  advertQueries: number[] = [];
   advertUrls: any[] = [];
 
   constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer, private ref: ChangeDetectorRef) {
@@ -85,12 +86,20 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   getAdvert(){
-    console.log('getting advert');
+    
+    let uniqueQuery = false;
+    let query;
+    while(!uniqueQuery) {
+      query = Math.floor( (Math.random() * 100 ) + 1);
+      if ( this.advertQueries.indexOf(query) == -1 ) {
+        this.advertQueries.push(query);
+        uniqueQuery = true;
+      }
+    }
 
-    this.advertsApi.getAdvert(1).then((url: string) => {
+    this.advertsApi.getAdvert(query).then((url: string) => {
       this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       this.advertUrls = this.advertUrls.slice();
-      this.ref.markForCheck();
       console.log(this.advertUrls);
     })
   }
