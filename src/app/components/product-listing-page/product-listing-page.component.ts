@@ -31,7 +31,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   initialLoad: boolean = true;
   noMoreProducts: boolean = false;
   sortQuery: string = 'id';
-  advertUrls: string[] = [];
+  advertUrls: any[] = [];
 
   constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer) {
     
@@ -66,6 +66,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
       }));
 
       this.productCount += this.productLoadInterval;
+      this.getAdvert();
     }
 
   }
@@ -83,16 +84,14 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     this.productCount = 0;
   }
 
-  getAdvert(index: number = 1){
-    if (this.advertUrls[index]){
-      return this.sanitizer.bypassSecurityTrustResourceUrl(this.advertUrls[index]);
-    } else {
-      this.advertsApi.getAdvert(index).then((url: string) => {
-        this.advertUrls[index] = url;
-        return this.sanitizer.bypassSecurityTrustResourceUrl(this.advertUrls[index]);
-      })
-    }
-    
+  getAdvert(){
+    console.log('getting advert');
+
+    this.advertsApi.getAdvert(1).then((url: string) => {
+      this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+      this.advertUrls = this.advertUrls.slice();
+      console.log(this.advertUrls);
+    })
   }
 
   ngOnDestroy(){
