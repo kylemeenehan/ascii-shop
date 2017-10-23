@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { Observable } from 'rxjs/Observable';
@@ -33,7 +33,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   sortQuery: string = 'id';
   advertUrls: any[] = [];
 
-  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer) {
+  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer, private ref: ChangeDetectorRef) {
     
   }
 
@@ -90,6 +90,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     this.advertsApi.getAdvert(1).then((url: string) => {
       this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       this.advertUrls = this.advertUrls.slice();
+      this.ref.markForCheck();
       console.log(this.advertUrls);
     })
   }
