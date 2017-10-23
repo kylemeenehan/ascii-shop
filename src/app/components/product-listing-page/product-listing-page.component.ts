@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
@@ -30,15 +31,15 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   initialLoad: boolean = true;
   noMoreProducts: boolean = false;
   sortQuery: string = 'id';
+  advertUrls: string[] = [];
 
-  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService) {
+  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer) {
     
   }
 
   ngOnInit() {
 
    this.productSubject.subscribe((products: Product[]) => {
-     console.log(products);
      this.products = products;
    }) 
 
@@ -55,7 +56,6 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     if (!(this.loadingMore || this.noMoreProducts)) {
       this.loadingMore = true;
       
-      console.log('load more');
       this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
         data.products.map((product) => {
           this.productCache.push(product);
@@ -67,6 +67,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
       this.productCount += this.productLoadInterval;
     }
+
   }
 
   sortBy(query: string) {
@@ -82,8 +83,16 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     this.productCount = 0;
   }
 
-  getAdImage(){
-    return this.advertsApi.getAdvert();
+  getAdvert(index: number = 1){
+    if (this.advertUrls[index]){
+      return this.sanitizer.bypassSecurityTrustResourceUrl(this.advertUrls[index]);
+    } else {
+      this.advertsApi.getAdvert(index).then((url: string) => {
+        this.advertUrls[index] = url;
+        return this.sanitizer.bypassSecurityTrustResourceUrl(this.advertUrls[index]);
+      })
+    }
+    
   }
 
   ngOnDestroy(){

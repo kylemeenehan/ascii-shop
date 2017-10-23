@@ -6,8 +6,7 @@ import { ProductListingPageComponent } from './components/product-listing-page/p
 
 
 const appRoutes: Routes = [
-  { path: '', component: ProductListingPageComponent, pathMatch: 'full' },
-  { path: '**', redirectTo: ''}
+  { path: '', component: ProductListingPageComponent, pathMatch: 'full' }
 ]
 
 @NgModule({

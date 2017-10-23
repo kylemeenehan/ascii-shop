@@ -5,6 +5,7 @@
   <div class="cell"><button mat-raised-button (click)="sortBy('price')">Price</button></div>
   <div class="cell"><button mat-raised-button (click)="sortBy('size')">Size</button></div>
   <div class="cell"><button mat-raised-button (click)="sortBy('id')">ID</button></div>
+  <div class="cell"><button mat-raised-button (click)="getAdvert()">Get Advert</button></div>
 </div>
 
 <div #infiniteScrollContainer class="grid-x grid-margin-x grid-margin-y">
@@ -22,7 +23,7 @@
     <div class="cell large-4 medium-6" *ngIf="(i + 1) % 20 == 0">
       <mat-card >
         <mat-card-content>
-          <img [src]=" " alt="">
+          <img [src]="getAdvert(i / 20 - 1)"alt="">
         </mat-card-content>
       </mat-card>
     </div>

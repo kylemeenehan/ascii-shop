@@ -10,10 +10,20 @@ export class AdvertsApiService {
 
   constructor(private http: HttpClient) { }
 
-  getAdvert(){
-    this.http.get('http://localhost:8000/ad?r=1').subscribe((result) => {
-      console.log(result);
+  getAdvert(query: number){
+
+    const adPromise = new Promise((resolve, reject) => {
+      return this.http.get(`http://localhost:8000/ad?r=${query}`, {responseType: 'arraybuffer'}).subscribe((data) => {
+        let arrayBufferView = new Uint8Array( data );
+        let blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } );
+        let urlCreator = window.URL || window['webkitURL'];
+        let url = urlCreator.createObjectURL( blob );
+        resolve(url);
+      })  
     })
+
+    return adPromise;
+    
   }
 
 }
