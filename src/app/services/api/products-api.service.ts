@@ -19,17 +19,13 @@ export class ProductsApiService {
         // remove empty element from the end of the array
         productStringArray.pop();
         let products: Product[] = [];
-        let end = false;
         if (productStringArray.length > 0) {
           products = productStringArray.map((line) => {
             return JSON.parse(line);
           });
-          if (productStringArray.length < numberOfProducts) {
-            end = true
-          }
         } 
 
-        observer.next({products, end});
+        observer.next(products);
       });
     })
 

@@ -31,12 +31,15 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   sortQuery: string = 'id';
   advertQueries: number[] = [];
   advertUrls: any[] = [];
+  gettingNext: boolean = false;
 
   constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer ) {
     
   }
 
   ngOnInit() {
+    // Fetch initial advert
+    this.getAdvert();
     
     // Initial Load of Products
     this.loadMoreProducts(); 
@@ -50,36 +53,77 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   loadMoreProducts() {
-
     // Check that there isn't already an instruction to load more products, and that there are still prducts to load
     if (!(this.loadingMore || this.noMoreProducts)) {
       this.loadingMore = true;
-      
-      // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
-      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
-        data.products.map((product) => {
+
+
+      if (this.initialLoad) {
+        
+        this.getProducts();
+        
+      } else {
+        this.productCache.map((product) => {
           this.products.push(product);
         });
 
         // Trigger Angular Change Detection
         this.products = this.products.slice();
-        
-        // Change state to show that the product loading has completed
+
+        // Check whether the end of the products has been reached
+        if (this.productCache.length == 0 || this.productCache.length < this.productLoadInterval) {
+          this.noMoreProducts = true;
+        } else {
+          // Clear cache
+          this.productCache = [];
+          
+          // Reload cache
+          this.getNextProducts();
+        }
+
         this.loadingMore = false;
-        
-        // Change state depending on whether there are more products to show from the api
-        this.noMoreProducts = data.end;
-      }));
+      }
+
+      
+    }
+
+  }
+
+  getProducts(){
+    // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
+    this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((products) => {
+      products.map((product) => {
+        this.products.push(product);
+      });
+
+      // Trigger Angular Change Detection
+      this.products = this.products.slice();
+      
+      // Change state to show that the product loading has completed
+      this.loadingMore = false;
+      
+      this.initialLoad = false;
       
       // Update the product count to facilitate the correct offset in the api call
       this.productCount += this.productLoadInterval;
 
-      // At the moment, each product load triggers an additional 20 products, if that number changes,
-      // then the call to this function would need to be ammended so that there is still an advert for
-      // every 20 product. At the moment though, we're keeping it lean.
-      this.getAdvert();
-    }
+      this.getNextProducts();
+    }));
+  }
+  
+  getNextProducts() {
+    this.gettingNext = true;
+    this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
+      data.products.map((product) => {
+        this.productCache.push(product);
+      });
+      this.gettingNext = false;
+    }));
 
+    // At the moment, each product load triggers an additional 20 products, if that number changes,
+    // then the call to this function would need to be ammended so that there is still an advert for
+    // every 20 product. At the moment though, we're keeping it lean.
+    this.getAdvert();
   }
 
   sortBy(query: string) {
@@ -96,7 +140,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   getAdvert(){
-    
+
     // Instantiate a false boolean to keep track of whether a generated query is unique
     let uniqueQuery = false;
 
@@ -122,7 +166,6 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     this.advertsApi.getAdvert(query).then((url: string) => {
       this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       this.advertUrls = this.advertUrls.slice();
-      console.log(this.advertUrls);
     })
   }
 
