@@ -60,7 +60,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
       if (this.initialLoad) {
         
-        this.getProducts();
+        this.getInitialProducts();
         
       } else {
         this.productCache.map((product) => {
@@ -89,7 +89,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
 
   }
 
-  getProducts(){
+  getInitialProducts(){
     // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
     this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((products) => {
       products.map((product) => {
@@ -113,8 +113,8 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   
   getNextProducts() {
     this.gettingNext = true;
-    this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
-      data.products.map((product) => {
+    this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((products) => {
+      products.map((product) => {
         this.productCache.push(product);
       });
       this.gettingNext = false;
