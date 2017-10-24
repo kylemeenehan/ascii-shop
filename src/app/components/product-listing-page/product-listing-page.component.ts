@@ -37,9 +37,12 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    
+
+    // Initial Load of Product Cache
+    this.loadProductCache();
+
     // Initial Load of Products
-    this.loadMoreProducts(); 
+    //this.loadMoreProducts(); 
     
     // Add event listener for adding more prodcts once user has reached the bottom of the page
     window.addEventListener('scroll', (event) => {
@@ -49,30 +52,51 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     })
   }
 
+  loadProductCache(){
+    // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
+    this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
+      data.products.map((product) => {
+        this.productCache.push(product);
+        if (this.initialLoad){
+          this.loadMoreProducts();
+        }
+      });
+    }));
+
+    // Update the product count to facilitate the correct offset in the api call
+    this.productCount += this.productLoadInterval; 
+  }
+
   loadMoreProducts() {
 
     // Check that there isn't already an instruction to load more products, and that there are still prducts to load
     if (!(this.loadingMore || this.noMoreProducts)) {
       this.loadingMore = true;
       
-      // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
-      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
-        data.products.map((product) => {
-          this.products.push(product);
-        });
+      if(this.productCache.length > this.products.length) {
+        this.products = this.productCache;
+        this.loadProductCache();
+      } else {
+        this.noMoreProducts = true;
+      }
+      this.loadingMore = false;
+      // this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
+      //   data.products.map((product) => {
+      //     this.products.push(product);
+      //   });
 
-        // Trigger Angular Change Detection
-        this.products = this.products.slice();
+      //   // Trigger Angular Change Detection
+      //   this.products = this.products.slice();
         
-        // Change state to show that the product loading has completed
-        this.loadingMore = false;
+      //   // Change state to show that the product loading has completed
+      //   this.loadingMore = false;
         
-        // Change state depending on whether there are more products to show from the api
-        this.noMoreProducts = data.end;
-      }));
+      //   // Change state depending on whether there are more products to show from the api
+      //   this.noMoreProducts = data.end;
+      // }));
       
       // Update the product count to facilitate the correct offset in the api call
-      this.productCount += this.productLoadInterval;
+      // this.productCount += this.productLoadInterval;
 
       // At the moment, each product load triggers an additional 20 products, if that number changes,
       // then the call to this function would need to be ammended so that there is still an advert for
