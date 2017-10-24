@@ -9,6 +9,8 @@ import Product from '../../../types/product';
 
 @Injectable()
 export class ProductsApiService {
+  
+  productCache: Product[] = [];
 
   constructor(private http: HttpClient) { }
 
@@ -34,6 +36,10 @@ export class ProductsApiService {
     })
 
     return productsObservable;
+
+  }
+
+  loadCache(){
 
   }
 

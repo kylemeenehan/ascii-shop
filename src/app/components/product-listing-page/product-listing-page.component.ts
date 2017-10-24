@@ -3,6 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
+import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/Rx';
 
@@ -31,16 +32,20 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   sortQuery: string = 'id';
   advertQueries: number[] = [];
   advertUrls: any[] = [];
+  loadingCache: boolean = false;
+  loadingSubject: Subject<null> = new Subject();
+  loadingSubscription; 
 
-  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer ) {
-    
+  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer) {
+
   }
 
   ngOnInit() {
-    
+
+    this.loadCache();
     // Initial Load of Products
-    this.loadMoreProducts(); 
-    
+    this.loadMoreProducts();
+
     // Add event listener for adding more prodcts once user has reached the bottom of the page
     window.addEventListener('scroll', (event) => {
       if (window.scrollY >= this.infiteScrollContainer.nativeElement.offsetHeight - window.innerHeight) {
@@ -49,84 +54,103 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     })
   }
 
-  loadMoreProducts() {
 
-    // Check that there isn't already an instruction to load more products, and that there are still prducts to load
-    if (!(this.loadingMore || this.noMoreProducts)) {
-      this.loadingMore = true;
-      
-      // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
-      this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
-        data.products.map((product) => {
-          this.products.push(product);
-        });
+  loadCache() {
+    
+    console.log('load cache');
+    console.log('cache length: ', this.productCache.length);
+    console.log('products length: ', this.products.length);
+    console.log('product count: ', this.productCount);
+    
+    this.loadingCache = true;
 
-        // Trigger Angular Change Detection
-        this.products = this.products.slice();
-        
-        // Change state to show that the product loading has completed
-        this.loadingMore = false;
-        
-        // Change state depending on whether there are more products to show from the api
-        this.noMoreProducts = data.end;
-      }));
-      
+    // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
+    this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
+      data.products.map((product) => {
+        this.productCache.push(product);
+      });
       // Update the product count to facilitate the correct offset in the api call
       this.productCount += this.productLoadInterval;
-
-      // At the moment, each product load triggers an additional 20 products, if that number changes,
-      // then the call to this function would need to be ammended so that there is still an advert for
-      // every 20 product. At the moment though, we're keeping it lean.
+      this.loadingCache = false;
+      this.loadingSubject.next();
       this.getAdvert();
+
+    }));
+  }
+
+  loadMoreProducts() {
+    console.log('load more products');
+    console.log('cache length: ', this.productCache.length);
+    console.log('products length: ', this.products.length);
+    console.log('product count: ', this.productCount);
+    this.loadingMore = true;
+    if (this.loadingCache) {
+      this.loadingSubscription = this.loadingSubject.subscribe(() => {
+        this.loadingSubscription.unsubscribe();
+        this.loadMoreProducts();
+      });
+    } else {
+
+      // Check that there isn't already an instruction to load more products, and that there are still prducts to load
+      if (this.productCache.length > this.products.length) {
+        this.products = this.productCache;
+        this.loadCache();
+        // At the moment, each product load triggers an additional 20 products, if that number changes,
+        // then the call to this function would need to be ammended so that there is still an advert for
+        // every 20 product. At the moment though, we're keeping it lean.
+        //this.getAdvert();
+      } else {
+        this.noMoreProducts = true;
+      }
     }
 
+    this.loadingMore = false;
   }
 
   sortBy(query: string) {
     this.sortQuery = query;
     this.reset();
     this.loadMoreProducts();
-    
+
   }
 
-  reset(){
+  reset() {
     this.productCache = [];
     this.products = [];
     this.productCount = 0;
   }
 
-  getAdvert(){
-    
+  getAdvert() {
+
     // Instantiate a false boolean to keep track of whether a generated query is unique
     let uniqueQuery = false;
 
     let query;
-    
+
     // Generate queries and check them against an array of existing queries to make sure that the
     // Query is unique
-    while(!uniqueQuery) {
+    while (!uniqueQuery) {
 
       // Generate a number from 1 to 100. This means that this code can only generate 100 unique adverts
-      query = Math.floor( (Math.random() * 100 ) + 1);
+      query = Math.floor((Math.random() * 100) + 1);
 
       // Check whether a query is unique in the given set.
       // If the array is longer than 100, the function returns the first generated query to prevent
       // an infinite loop:
-      if ( this.advertQueries.indexOf(query) == -1 || this.advertQueries.length >= 100) {
+      if (this.advertQueries.indexOf(query) == -1 || this.advertQueries.length >= 100) {
         this.advertQueries.push(query);
         uniqueQuery = true;
       }
     }
-    
+
     // 
     this.advertsApi.getAdvert(query).then((url: string) => {
       this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       this.advertUrls = this.advertUrls.slice();
-      console.log(this.advertUrls);
     })
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
 
     // Unsubscribe from product subscriptions on destroy
     this.productsSubscriptions.map((subscription) => {
