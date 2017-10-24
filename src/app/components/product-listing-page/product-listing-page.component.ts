@@ -117,7 +117,8 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
         uniqueQuery = true;
       }
     }
-
+    
+    // 
     this.advertsApi.getAdvert(query).then((url: string) => {
       this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       this.advertUrls = this.advertUrls.slice();
@@ -126,6 +127,8 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
+
+    // Unsubscribe from product subscriptions on destroy
     this.productsSubscriptions.map((subscription) => {
       subscription.unsubscribe();
     })
