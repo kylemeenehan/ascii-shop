@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { Observable } from 'rxjs/Observable';
@@ -22,7 +22,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   @ViewChild('infiniteScrollContainer') infiteScrollContainer: ElementRef;
   productsSubscriptions: Subscription[] = [];
   productCache: Product[] = [];
-  products: Product[];
+  products: Product[] = [];
   productSubject: Subject<Product[]> = new Subject();
   productUpdateObservable;
   productCount: number = 0;
@@ -34,17 +34,13 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   advertQueries: number[] = [];
   advertUrls: any[] = [];
 
-  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer, private ref: ChangeDetectorRef) {
+  constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer ) {
     
   }
 
   ngOnInit() {
-
-   this.productSubject.subscribe((products: Product[]) => {
-     this.products = products;
-   }) 
-
-   this.loadMoreProducts(); 
+    
+    this.loadMoreProducts(); 
 
     window.addEventListener('scroll', (event) => {
       if (window.scrollY >= this.infiteScrollContainer.nativeElement.offsetHeight - window.innerHeight) {
@@ -59,9 +55,9 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
       
       this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((data) => {
         data.products.map((product) => {
-          this.productCache.push(product);
+          this.products.push(product);
         });
-        this.productSubject.next(this.productCache);
+        this.products = this.products.slice();
         this.loadingMore = false;
         this.noMoreProducts = data.end;
       }));
