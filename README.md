@@ -1,28 +1,67 @@
 # AsciiShop
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.3.2.
+# Features
 
-## Development server
+### Products are displayed in a grid
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+For this I used Foundation's XY grid. I also created a service that calls the api.
 
-## Code scaffolding
+Files:
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+* product-listing-page.component.ts
+* product-listing-page.component.html
+* products-api.service.ts
+* _foundation.scss
 
-## Build
+### Give the user an option to sort the products in ascending order. Can sort by "size", "price" or "id"
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+For this I used a reset function that clears the products and starts the product page again with a new sort query.
+This is in order to ensure that the sort covers the entire product range, rather than relying on frontend sorting only on the products that have already been loaded.
 
-## Running unit tests
+Files:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+* product-listing-page.component.ts
+* product-listing-page.component.html
 
-## Running end-to-end tests
+### Each product has a size field, products are diplayed in the correct sizes
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+For this I used Angular interpolation for the string as well as the style
 
-## Further help
+Files:
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+* product-listing-page.component.html
+
+### Each product has a price field in cents, but displayed in dollars
+
+For this I used Angular's currency pipe after dividing the cent value by 100
+
+Files:
+
+* product-listing-page.component.html
+
+### Each product has a date field that should display the number of days ago that the product was created, or the date itself if the date is older than one week
+
+For this I created a custom pipe. I also used this as an opportunity to write a unit test
+
+Files:
+
+* product-listing-page.component.html
+* product-date.pipe.ts
+* product-date.pipe.spec.ts
+
+### the product grid should automatically load more items as you scroll down
+
+The functionality for this can be found in the loadMoreProducts function in thie product listing page component:
+
+Files:
+
+* product-listing-page.component.ts
+
+### our product database is under high load due to growing demand for ascii, so please display an animated "loading..." message while the user waits.
+
+For this I created a component using a css spinner from (http://tobiasahlin.com/spinkit/)[http://tobiasahlin.com/spinkit/]
+
+Files:
+
+* loading-spinner.component.html
+* loading-spinner.component.scss
