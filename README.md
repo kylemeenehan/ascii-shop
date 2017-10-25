@@ -59,9 +59,41 @@ Files:
 
 ### our product database is under high load due to growing demand for ascii, so please display an animated "loading..." message while the user waits.
 
-For this I created a component using a css spinner from (http://tobiasahlin.com/spinkit/)[http://tobiasahlin.com/spinkit/]
+For this I created a component using a css spinner from [http://tobiasahlin.com/spinkit/](http://tobiasahlin.com/spinkit/)
 
 Files:
 
 * loading-spinner.component.html
 * loading-spinner.component.scss
+
+### to improve the user's experience, we should always pre-emptively fetch the next batch of results in advance, making use of idle-time.  But they still should not be displayed until the user has scrolled to the bottom of the product grid.
+
+The functionality for this can be found in the getNextProducts and loadMoreProducts functions of the product listing page component
+
+Files:
+
+* product-listing-page.component.ts
+
+### when the user reaches the end and there are no more products to display, show the message "~ end of catalogue ~".
+
+The trigger for this state exists in the loadMoreProducts function, and the display is in the view using an Angular *ngIf.
+
+Files:
+
+* product-listing-page.component.ts
+* product-listing-page.component.html
+
+
+### after every 20 products we need to insert an advertisement from one of our sponsors. Use the same markup as the advertisement in the header, but make sure the `?r` query param is randomly generated each time an ad is displayed. Ads should be randomly selected, but a user must never see the same ad twice in a row.
+
+For this I used an array that keep track of which queries have already been used. The functionality for this is in the getAdvert function in the products listing page component.
+
+I also used Angular's index variable in the *ngFor loop for the display logic.
+
+Files:
+
+* product-listing-page.component.html
+* product-listing-page.component.ts
+* adverts-api.service.ts
+
+
