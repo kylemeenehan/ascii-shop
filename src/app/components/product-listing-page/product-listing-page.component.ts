@@ -3,6 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
+import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/Rx';
 
@@ -19,19 +20,24 @@ import Product from '../../../types/product';
 export class ProductListingPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('infiniteScrollContainer') infiteScrollContainer: ElementRef;
-  productsSubscriptions: Subscription[] = [];
   productCache: Product[] = [];
   products: Product[] = [];
-  productUpdateObservable;
+  gettingNext: boolean = false;
+  awaitingProducts: boolean = false;
+
+  productsSubscriptions: Subscription[] = [];
+
   productCount: number = 0;
   productLoadInterval: number = 20;
-  loadingMore: boolean = false;
+  
   initialLoad: boolean = true;
+
+  loadingMore: boolean = false;
   noMoreProducts: boolean = false;
+
   sortQuery: string = 'id';
   advertQueries: number[] = [];
   advertUrls: any[] = [];
-  gettingNext: boolean = false;
 
   constructor(private productsApi: ProductsApiService, private advertsApi: AdvertsApiService, private sanitizer: DomSanitizer ) {
     
@@ -44,7 +50,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
     // Initial Load of Products
     this.loadMoreProducts(); 
     
-    // Add event listener for adding more prodcts once user has reached the bottom of the page
+    // Add event listener for adding more products once user has reached the bottom of the page
     window.addEventListener('scroll', (event) => {
       if (window.scrollY >= this.infiteScrollContainer.nativeElement.offsetHeight - window.innerHeight) {
         this.loadMoreProducts();
@@ -53,16 +59,23 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   loadMoreProducts() {
-    // Check that there isn't already an instruction to load more products, and that there are still prducts to load
-    if (!(this.loadingMore || this.noMoreProducts)) {
+    // Check that there isn't already an instruction to load more products,
+    // that there are still prducts to load,
+    // or whether the program is awaiting more products
+    if (!(this.loadingMore || this.noMoreProducts) || this.awaitingProducts) {
+      
       this.loadingMore = true;
 
+      // reset awaiting products so that the logic for awaiting products can execute further down
+      this.awaitingProducts = false;
 
       if (this.initialLoad) {
         
         this.getInitialProducts();
         
       } else {
+
+        // Fetch products from the product cache
         this.productCache.map((product) => {
           this.products.push(product);
         });
@@ -70,18 +83,30 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
         // Trigger Angular Change Detection
         this.products = this.products.slice();
 
-        // Check whether the end of the products has been reached
+        // Check whether the end of the cache has been reached
         if (this.productCache.length == 0 || this.productCache.length < this.productLoadInterval) {
-          this.noMoreProducts = true;
+
+          // If the end of the product cache has been reached, check whether it's just in the process of
+          // Fetching more products
+          if (this.gettingNext) {
+
+            // Signal to the get next products function that the load more function is awaitin products
+            this.awaitingProducts = true;
+          } else {
+
+            // If the cache is empty and the get next function has no more products to return,
+            // signal to the view that there are no more products
+            this.noMoreProducts = true;
+          }
         } else {
           // Clear cache
           this.productCache = [];
           
           // Reload cache
           this.getNextProducts();
+          this.loadingMore = false;
         }
 
-        this.loadingMore = false;
       }
 
       
@@ -90,6 +115,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
 
   getInitialProducts(){
+
     // Store subscriptions in an array so that they can easily be unsubscribed from when the component is destroyed
     this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((products) => {
       products.map((product) => {
@@ -112,12 +138,27 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
   }
   
   getNextProducts() {
+
     this.gettingNext = true;
+
+    // Add the subscription to an array to facilitate easy unsubscribing in the ngOnDestroy function
     this.productsSubscriptions.push(this.productsApi.getProducts(this.productLoadInterval, this.productCount, this.sortQuery).subscribe((products) => {
+
+      // Push the produst fetched from the api to the product cache
       products.map((product) => {
         this.productCache.push(product);
       });
+
       this.gettingNext = false;
+      
+      // Update the product count to facilitate the correct offset in the api call
+      this.productCount += this.productLoadInterval;
+
+      // check to see whether the loadingMore function is waiting to receive products,
+      // trigger the function if it is
+      if (this.awaitingProducts) {
+        this.loadMoreProducts();
+      }
     }));
 
     // At the moment, each product load triggers an additional 20 products, if that number changes,
@@ -162,7 +203,7 @@ export class ProductListingPageComponent implements OnInit, OnDestroy {
       }
     }
     
-    // 
+    // Fetch an advert with the unique query
     this.advertsApi.getAdvert(query).then((url: string) => {
       this.advertUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       this.advertUrls = this.advertUrls.slice();
