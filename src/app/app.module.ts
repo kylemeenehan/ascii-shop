@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { ServicesModule } from './services/services.module';
 import { ComponentsModule } from './components/components.module';
 import { MaterialModule } from './material/material.module';
+import { PipesModule } from './pipes/pipes.module';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { MaterialModule } from './material/material.module';
     AppRoutingModule,
     ServicesModule,
     ComponentsModule,
-    MaterialModule
+    MaterialModule,
+    PipesModule
   ],
   providers: [],
   bootstrap: [AppComponent]
