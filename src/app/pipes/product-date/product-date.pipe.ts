@@ -12,7 +12,7 @@ export class ProductDatePipe implements PipeTransform {
 
     let dayDifference = Math.round((now.getTime() - productDate.getTime()) / 1000 / 60 / 60 / 24);
     
-    if ( dayDifference <= 3 ) {
+    if ( dayDifference <= 7 ) {
       if ( dayDifference == 0 ) {
         return 'Today!';
       } else if ( dayDifference == 1 ) {
