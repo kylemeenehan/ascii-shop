@@ -30,7 +30,5 @@
 
   <app-loading-spinner *ngIf="(initialLoad || loadingMore) && !noMoreProducts" ></app-loading-spinner>
   
-  <div>
-    <div class="cell" *ngIf="noMoreProducts">~ end of catalogue ~</div>
-  </div>
+    <div class="cell" *ngIf="noMoreProducts"><h1 class="text-center">~ end of catalogue ~</h1></div>
 </div>
