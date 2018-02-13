@@ -1,5 +1,19 @@
 # AsciiShop
 
+## How to run this project
+If you are recieving the zipped version of this repo, you can just run:
+```
+npm run start
+
+```
+Alternatively, you will need the angular command line to run the following:
+
+```
+npm install
+npm run build
+npm run start
+```
+
 # Features
 
 ### Products are displayed in a grid
